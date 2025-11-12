@@ -24,10 +24,10 @@ def create_item(item: SummaryResponse):
     db: Session = SessionLocal()
     try:
         new_item = Summary(id=item.id, url=item.url, summary = item.summary)
+        new_item.summary = summarize_pipeline(new_item.id, new_item.url)
         db.add(new_item)
         db.commit()
         db.refresh(new_item), 
-        summarize_pipeline(new_item.id, new_item.url)
         return {"id": new_item.id, "url": new_item.url, "summary": new_item.summary}
     except Exception as e:
         db.rollback()

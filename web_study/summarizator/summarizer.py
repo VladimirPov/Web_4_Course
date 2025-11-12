@@ -1,17 +1,17 @@
-# os.environ['PATH'] += r';D:\ПО\ffmpeg-master-latest-win64-gpl-shared\ffmpeg-master-latest-win64-gpl-shared\bin'  # укажите ваш путь
-
 from pathlib import Path
 import yt_dlp as ytdl
 from moviepy import VideoFileClip
 import ffmpeg
-import whisper  # ← используем оригинальный whisper вместо faster-whisper
+from faster_whisper import WhisperModel
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
 import os
 
+
+
 DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR", "downloads")
 
-def download_video(url: str, out_dir: str = DOWNLOAD_DIR) -> Path:  # ← исправлено: убрал кавычки
+def download_video(url: str, out_dir: str = "DOWNLOAD_DIR") -> Path:
     out_dir_p = Path(out_dir)
     out_dir_p.mkdir(parents=True, exist_ok=True)
     ydl_opts = {
@@ -23,8 +23,10 @@ def download_video(url: str, out_dir: str = DOWNLOAD_DIR) -> Path:  # ← исп
     }
     with ytdl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
+        # инфа содержит 'title' и 'ext'
         filename = ydl.prepare_filename(info)
     return Path(filename)
+
 
 def extract_audio_to_wav(video_path: Path, out_wav: str = None, sr: int = 16000) -> Path:
     video_path = Path(video_path)
@@ -48,15 +50,16 @@ def extract_audio_to_wav(video_path: Path, out_wav: str = None, sr: int = 16000)
 
     return out_wav
 
-def transcribe_audio_whisper(audio_path: Path, model_size: str = 'small', language: str = 'ru', task: str = 'transcribe') -> str:
-    model = whisper.load_model(model_size)
-    result = model.transcribe(
-        str(audio_path), 
-        language=language, 
-        task=task,
-        fp16=False  # Важно для работы на CPU
-    )
-    return result["text"]
+def transcribe_audio_wisper(audio_path: Path, model_size: str = 'small', language: str  = 'ru', task: str = 'transcribe') -> str:
+    model = WhisperModel(model_size, device='cpu', compute_type='float32')
+    segments, info = model.transcribe(str(audio_path), beam_size=5, language=language, task=task)
+
+    texts = []
+    for segment in segments:
+        texts.append(segment.text)
+    full_text = ' '.join(texts)
+    return full_text
+
 
 def summarize_text(text):
     model_name = "LaciaStudio/Lacia_sum_small_v1"
@@ -74,6 +77,8 @@ def summarize_text(text):
 def summarize_pipeline(task_id: int, url: str):
     video_path = download_video(url)
     audio_path = extract_audio_to_wav(video_path)
-    transcript = transcribe_audio_whisper(audio_path)  # ← используем обновленную функцию
+    transcript = transcribe_audio_wisper(audio_path)
     summary = summarize_text(transcript)
     print(f'Summary {task_id} for {url}: {summary}')
+    return summary
+    
