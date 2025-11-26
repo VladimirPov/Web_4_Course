@@ -5,6 +5,7 @@ import { Input } from "@/src/components/ui/input"
 import { useState } from "react"
 
 export default function Summarize() {
+    const generatedSummary = "*summary*" 
     const [url, setUrl] = useState("")
     return (
         <div className="bg-white h-[50rem] flex items-center justify-center p-4">
@@ -28,6 +29,11 @@ export default function Summarize() {
                     >
                         Summarize
                     </Button>
+                    <div className="bg-white p-8 border border-gray-100">
+                        <p className="text-lg text-gray-600 font-medium">
+                            {generatedSummary}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
