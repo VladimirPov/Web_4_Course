@@ -36,7 +36,7 @@ export default async function HistoryItem({params}: {
         <Button variant="ghost" size="sm" asChild className="gap-2 w-fit">
           <Link href="/history">
             <ArrowLeft className="size-4" aria-hidden />
-            Back to History
+            Назад
           </Link>
         </Button>
 

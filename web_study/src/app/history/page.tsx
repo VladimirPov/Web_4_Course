@@ -30,10 +30,10 @@ export default function History() {
             <div className="text-center space-y-8 max-w-md">
         <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
-                History
+                История
             </h1>
             <p className="text-lg text-gray-600 font-medium">
-                Incredible stories...
+                Примеры карточек
             </p>
         </div>
 
@@ -42,7 +42,7 @@ export default function History() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-sm font-semibold">Summary</TableHead>
+                <TableHead className="text-sm font-semibold">Краткое содержание</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
