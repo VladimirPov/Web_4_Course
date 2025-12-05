@@ -1,44 +1,62 @@
-import { Button } from "@/src/components/ui/button";
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-const mockHistory = [
-  {
-    id: "1",
-    url: "https://youtu.be/design-talk",
-    summary: "Short note about the design talk video.",
-    href: "/history/1",
-  },
-  {
-    id: "2",
-    url: "https://youtu.be/product-update",
-    summary: "Brief summary of the product update clip.",
-    href: "/history/2",
-  },
-  {
-    id: "3",
-    url: "https://youtu.be/podcast-ep",
-    summary: "Quick recap of the podcast episode.",
-    href: "/history/3",
-  },
-];
+interface HistoryItem {
+  id: number;
+  url: string;
+  summary: string;
+  created_at: string;
+}
 
 export default function History() {
+    
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/summaries");
+      const data = await response.json();
+      setHistory(data);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
     return (
+      <div className="flex min-h-[calc(100dvh-8rem)] items-center justify-center">
+        <div className="text-muted-foreground">Загрузка</div>
+      </div>
+    );
+  }
+
+  return (
         <div className="bg-white h-[50rem] flex items-center justify-center p-6">
             <div className="text-center space-y-8 max-w-md">
         <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                 История
             </h1>
-            <p className="text-lg text-gray-600 font-medium">
-                Примеры карточек
-            </p>
         </div>
 
+        {history.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            Пусто
+          </div>
+          ) : (
         <div className="pt-4">
-<div className="rounded-xl border border-border/60">
+        <div className="rounded-xl border border-border/60">
           <Table>
             <TableHeader>
               <TableRow>
@@ -46,10 +64,10 @@ export default function History() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockHistory.map((item) => (
+              {history.map((item) => (
                 <TableRow key={item.id} className="bg-background">
                   <TableCell className="p-0 align-top">
-                    <Link href={item.href} className="block">
+                    <Link href={`/history/${item.id}`} className="block">
                       <Card className="rounded-none border-0 border-b border-border/40 gap-0 py-0 transition-colors last:border-b-0 hover:bg-muted/40">
                         <CardHeader className="space-y-1 px-4 py-3 pb-1">
                           <CardTitle className="text-sm font-medium">
@@ -70,10 +88,7 @@ export default function History() {
           </Table>
         </div>
         </div>
-
-        <div className="pt-8">
-            <div className="w-24 h-1 bg-gradient-to-r from-gray-200 to-gray-300 mx-auto rounded-full"></div>
-        </div>
+        )}
     </div>
 </div>
     )
