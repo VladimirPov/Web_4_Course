@@ -9,11 +9,14 @@ export const Header = () => {
                     Cool App
                 </h1>
                 <nav className="flex space-x-4">
+                    <a href="/" className="nav-btn">
+                        Суммаризация
+                    </a>
                     <a href="/summarize" className="nav-btn">
-                        Summary
+                        Результат
                     </a>
                     <a href="/history" className="nav-btn">
-                        History
+                        История
                     </a>
                 </nav>
             </div>

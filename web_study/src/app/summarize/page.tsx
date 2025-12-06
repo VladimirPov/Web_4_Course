@@ -20,7 +20,6 @@ export default function Summarize() {
     try {
       setLoading(true);
       
-      //Через существующий API (если есть ID в URL)
       const params = new URLSearchParams(window.location.search);
       const id = params.get("id");
       
@@ -41,7 +40,7 @@ export default function Summarize() {
       
     } catch (error) {
       console.error("Ошибка:", error);
-      // Показываем заглушку
+      
       setUrl("https://youtu.be/example");
       setSummary("Не удалось загрузить суммаризацию");
     } finally {
@@ -63,7 +62,7 @@ export default function Summarize() {
         <div className="bg-white h-[50rem] flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-semibold text-gray-900 mb-2">Summarize</h1>
+                    <h1 className="text-3xl font-semibold text-gray-900 mb-2">Результат</h1>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
@@ -75,12 +74,6 @@ export default function Summarize() {
                             }}
                         />
                     </div>
-
-                    <Button 
-                        className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 active:bg-gray-900 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none"
-                    >
-                        Получить краткое содержание
-                    </Button>
                     <div className="bg-white p-8 border border-gray-100">
                         <p className="text-lg text-gray-600 font-medium">
                             {generatedSummary}

@@ -99,28 +99,33 @@ export default function Home() {
           <CardHeader>
             <CardTitle>Суммаризация видео</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Вставьте URL-ссылку на видео (например, YouTube)
+              Вставьте ссылку на видео
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <form className="flex flex-col gap-4 sm:flex-row" onSubmit={handleSubmit}>
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="h-11 flex-1"
-                disabled={isLoading}
-                required
-              />
-              <Button type="submit" className="h-11 sm:w-auto" disabled={!url.trim() || isLoading}>
-                {isLoading ? "Обработка..." : "Суммаризовать"}
-              </Button>
+              <div className="mb-6">
+                <Input
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="Вставьте ссылку на видео"
+                  className="h-11 flex-1"
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+              <div className="mb-6">
+                <Button className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 active:bg-gray-900 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none" 
+                  disabled={!url.trim() || isLoading}>
+                  {isLoading ? "Обработка" : "Получить краткое содержание"}        
+                </Button>
+              </div>
             </form>
             
             {isLoading && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
-                <span>Обработка видео...</span>
+                <span>Обработка видео</span>
               </div>
             )}
           </CardContent>
