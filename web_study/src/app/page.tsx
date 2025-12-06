@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Check, X } from "lucide-react";
+import { Loader2, Check, X, Link, Clock, Zap, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 
 interface Task {
@@ -12,6 +12,7 @@ interface Task {
   url: string;
   status: 'processing' | 'completed' | 'failed';
   summaryId?: number;
+  timestamp?: string;
 }
 
 export default function Home() {
@@ -68,11 +69,17 @@ export default function Home() {
       if (!res.ok) throw new Error("Ошибка");
 
       const data = await res.json();
-      const newTask: Task = {
-        id: data.taskId,
-        url: url.substring(0, 50) + (url.length > 50 ? "..." : ""),
-        status: 'processing'
-      };
+      
+    const newTask: Task = {
+      id: data.taskId,
+      url: url.substring(0, 50) + (url.length > 50 ? "..." : ""),
+      status: 'processing',
+      timestamp: new Date().toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: 'Europe/Moscow'
+      })
+    };
       
       setTasks(prev => [newTask, ...prev.slice(0, 4)]);
       setActiveTaskId(data.taskId);
@@ -84,70 +91,179 @@ export default function Home() {
 
   const isLoading = activeTaskId !== null;
 
-  const StatusIcon = ({ status }: { status: Task['status'] }) => {
-    switch (status) {
-      case 'processing': return <Loader2 className="size-4 animate-spin text-blue-500" />;
-      case 'completed': return <Check className="size-4 text-green-500" />;
-      case 'failed': return <X className="size-4 text-red-500" />;
-    }
+  const StatusBadge = ({ status }: { status: Task['status'] }) => {
+    const config = {
+      processing: { 
+        label: 'Обработка', 
+        className: 'bg-blue-100 text-blue-800 border-blue-200',
+        icon: <Loader2 className="size-3 animate-spin" />
+      },
+      completed: { 
+        label: 'Готово', 
+        className: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        icon: <Check className="size-3" />
+      },
+      failed: { 
+        label: 'Ошибка', 
+        className: 'bg-red-100 text-red-800 border-red-200',
+        icon: <X className="size-3" />
+      }
+    };
   };
 
   return (
-    <div className="flex min-h-[calc(100dvh-8rem)] w-full items-center justify-center px-4 py-12">
-      <div className="w-full max-w-2xl space-y-6">
-        <Card className={isLoading ? "opacity-60" : ""}>
-          <CardHeader>
-            <CardTitle>Суммаризация видео</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Вставьте ссылку на видео
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form className="flex flex-col gap-4 sm:flex-row" onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <Input
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="Вставьте ссылку на видео"
-                  className="h-11 flex-1"
-                  disabled={isLoading}
-                  required
-                />
+    <div className="min-h-[calc(100dvh-8rem)] w-full px-4 py-8 md:py-12">
+      <div className="mx-auto w-full max-w-4xl space-y-8">
+        <div className="space-y-4 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2">
+            <Sparkles className="size-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">
+              AI-суммаризация видео
+            </span>
+          </div>
+          
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            Суммаризация видео
+          </h1>
+          
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            Вставьте ссылку на YouTube видео и получите краткое содержание с помощью искусственного интеллекта
+          </p>
+        </div>
+
+        <Card className="relative overflow-hidden border-2 border-transparent bg-gradient-to-br from-white to-gray-50 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <div className="absolute right-0 top-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10" />
+          
+          <CardHeader className="relative">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 p-2">
+                <Link className="size-6 text-white" />
               </div>
-              <div className="mb-6">
-                <Button className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 active:bg-gray-900 transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:outline-none" 
-                  disabled={!url.trim() || isLoading}>
-                  {isLoading ? "Обработка" : "Получить краткое содержание"}        
+              <div>
+                <CardTitle className="text-2xl">Вставьте ссылку на видео</CardTitle>
+                <CardDescription>
+                  Поддерживаются ссылки на YouTube
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="relative space-y-6">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div className="flex flex-col gap-4 md:flex-row">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Input
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className="h-14 rounded-xl border-2 border-gray-200 bg-white pl-12 text-base shadow-sm transition-all hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      disabled={isLoading}
+                      required
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                      <Link className="size-5 text-gray-400" />
+                    </div>
+                  </div>
+                </div>
+                
+                <Button 
+                  size="lg"
+                  className="h-14 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 text-base font-semibold text-white shadow-lg transition-all hover:from-blue-700 hover:to-purple-700 hover:shadow-xl active:scale-[0.98]"
+                  disabled={!url.trim() || isLoading}
+                  type="submit"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 size-5 animate-spin" />
+                      Обработка...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="mr-2 size-5" />
+                      Получить конспект
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
-            
+
             {isLoading && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" />
-                <span>Обработка видео</span>
+              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-blue-100 p-2">
+                      <Loader2 className="size-5 animate-spin text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-blue-900">Видео обрабатывается</p>
+                    </div>
+                  </div>
+                  <div className="hidden md:block">
+                    <div className="flex items-center gap-2 text-sm text-blue-700">
+                      <Clock className="size-4" />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
 
         {tasks.length > 0 && (
-          <Card>
+          <Card className="border-2 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg">Последние задачи</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Clock className="size-5 text-gray-500" />
+                  История задач
+                </CardTitle>
+              </div>
             </CardHeader>
+            
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {tasks.map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-2 rounded hover:bg-muted">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={task.status} />
-                      <span className="text-sm truncate">{task.url}</span>
+                  <div 
+                    key={task.id} 
+                    className="group flex items-center justify-between rounded-lg border border-gray-100 p-4 transition-all hover:border-blue-200 hover:bg-blue-50/50"
+                  >
+                    <div className="flex flex-1 items-center gap-4 overflow-hidden">
+                      <div className="flex-shrink-0">
+                        <div className={`rounded-full p-2 ${
+                          task.status === 'processing' ? 'bg-blue-100' :
+                          task.status === 'completed' ? 'bg-emerald-100' :
+                          'bg-red-100'
+                        }`}>
+                          {task.status === 'processing' && <Loader2 className="size-4 animate-spin text-blue-600" />}
+                          {task.status === 'completed' && <Check className="size-4 text-emerald-600" />}
+                          {task.status === 'failed' && <X className="size-4 text-red-600" />}
+                        </div>
+                      </div>
+                      
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate font-medium text-gray-900">
+                            {task.url}
+                          </p>
+                        </div>
+                        {task.timestamp && (
+                          <div className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                            <Clock className="size-3" />
+                            {task.timestamp}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
                     {task.status === 'completed' && task.summaryId && (
-                      <Button size="sm" variant="ghost" onClick={() => router.push(`/summarize?id=${task.summaryId}`)}>
-                        Посмотреть
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="ml-4 hidden transition-all group-hover:flex"
+                        onClick={() => router.push(`/summarize?id=${task.summaryId}`)}
+                      >
+                        Открыть
                       </Button>
                     )}
                   </div>
@@ -155,7 +271,12 @@ export default function Home() {
               </div>
               
               {tasks.length >= 5 && (
-                <p className="text-xs text-muted-foreground mt-2">Показаны последние 5 задач</p>
+                <div className="mt-6 rounded-lg border border-amber-100 bg-amber-50/50 p-4">
+                  <div className="flex items-center gap-2 text-sm text-amber-800">
+                    <Clock className="size-4" />
+                    <span>Показаны последние 5 задач. Полная история доступна в профиле.</span>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>

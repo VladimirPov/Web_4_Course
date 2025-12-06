@@ -12,9 +12,6 @@ export const Header = () => {
                     <a href="/" className="nav-btn">
                         Суммаризация
                     </a>
-                    <a href="/summarize" className="nav-btn">
-                        Результат
-                    </a>
                     <a href="/history" className="nav-btn">
                         История
                     </a>
